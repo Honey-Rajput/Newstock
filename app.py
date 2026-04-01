@@ -784,7 +784,7 @@ if "results" in st.session_state:
                     
                     with st.spinner(f"Calculating {plan_tf} trade execution levels..."):
                         # Always strictly fetch fresh data matching the requested timeframe guarantees accurate Intraday Pivots
-                        plan_data = fetch_all_stocks(ns_symbols, tf=plan_tf)
+                        plan_data = fetch_all_stocks(ns_symbols, timeframe=plan_tf)
                              
                         plan_rows = []
                         for sym in ns_symbols:
