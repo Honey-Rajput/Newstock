@@ -1,0 +1,82 @@
+{
+    "RELIANCE.NS": {
+        "Fundamentals": {
+            "Trailing P/E": 22.245329,
+            "Forward P/E": 20.872711,
+            "Debt-to-Equity": 35.651
+        },
+        "Technicals": {
+            "Last Price": 1369.2,
+            "RSI_14": 43.62,
+            "SMA_50": 1408.63,
+            "SMA_200": 1445.91,
+            "MACD": -12.36,
+            "MACD_Signal": -9.72,
+            "MACD_Hist": -2.64
+        }
+    },
+    "TCS.NS": {
+        "Fundamentals": {
+            "Trailing P/E": 18.26331,
+            "Forward P/E": 15.6191435,
+            "Debt-to-Equity": 9.444
+        },
+        "Technicals": {
+            "Last Price": 2408.2,
+            "RSI_14": 36.5,
+            "SMA_50": 2735.9,
+            "SMA_200": 3003.84,
+            "MACD": -97.51,
+            "MACD_Signal": -112.27,
+            "MACD_Hist": 14.76
+        }
+    },
+    "HDFCBANK.NS": {
+        "Fundamentals": {
+            "Trailing P/E": 16.5533,
+            "Forward P/E": 12.999125,
+            "Debt-to-Equity": null
+        },
+        "Technicals": {
+            "Last Price": 742.25,
+            "RSI_14": 30.02,
+            "SMA_50": 880.57,
+            "SMA_200": 957.46,
+            "MACD": -41.09,
+            "MACD_Signal": -35.09,
+            "MACD_Hist": -6.0
+        }
+    },
+    "INFY.NS": {
+        "Fundamentals": {
+            "Trailing P/E": 17.46577,
+            "Forward P/E": 16.641327,
+            "Debt-to-Equity": 10.531
+        },
+        "Technicals": {
+            "Last Price": 1275.7,
+            "RSI_14": 43.38,
+            "SMA_50": 1410.47,
+            "SMA_200": 1498.78,
+            "MACD": -34.85,
+            "MACD_Signal": -45.85,
+            "MACD_Hist": 11.0
+        }
+    },
+    "ITC.NS": {
+        "Fundamentals": {
+            "Trailing P/E": 17.93973,
+            "Forward P/E": 17.358395,
+            "Debt-to-Equity": 0.507
+        },
+        "Technicals": {
+            "Last Price": 291.7,
+            "RSI_14": 36.23,
+            "SMA_50": 312.22,
+            "SMA_200": 375.21,
+            "MACD": -7.48,
+            "MACD_Signal": -6.84,
+            "MACD_Hist": -0.64
+        }
+    }
+}
