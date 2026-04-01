@@ -480,7 +480,7 @@ if "results" in st.session_state:
 
     # ── TABS ──
     tab_overview, tab_analysis, tab_smc, tab_volume, tab_chartink = st.tabs([
-        "🌐 Market Scanner", "🔍 Individual Analysis", "🧠 SMC Screener", "📊 Volume", "🔗 External Screeners"
+        "🌐 Market Scanner", "🔍 Individual Analysis", "🧠 SMC Screener", "📊 Volume", "🎯 Trade Planner"
     ])
 
     # ═══════════ TAB 1: OVERVIEW ═══════════
@@ -756,17 +756,76 @@ if "results" in st.session_state:
                 st.markdown("##### 📉 RSI (14)")
                 st.plotly_chart(build_rsi_chart(v_hist), width="stretch", key="vol_rsi")
 
-    # ═══════════ TAB 5: EXTERNAL SCREENERS ═══════════
+    # ═══════════ TAB 5: CHARTINK TRADE PLANNER ═══════════
     with tab_chartink:
-        st.markdown("### 📈 External Chartink Screeners")
-        st.write("Access your pre-configured Chartink screener formulas directly via the links below.")
+        st.markdown("### 🎯 Chartink Trade Planner")
+        st.write("Paste your raw Chartink copy-paste below. We'll automatically extract the exact stock symbols and generate an actionable trade plan (Entry, Target, Stop Loss) based on technical pivots.")
         
-        st.markdown("<br>", unsafe_allow_html=True)
+        st.markdown("<hr style='margin-top:10px; margin-bottom:10px'>", unsafe_allow_html=True)
+        
+        with st.form("trade_planner_form"):
+            plan_tf = st.selectbox("⏱️ Select Intraday Timeframe for Trade Planner", ["5m", "15m", "1h", "Daily"], index=1)
+            raw_paste = st.text_area("✍️ Paste Chartink Stocks Here", height=100, placeholder="Copy-paste the entire list from Chartink (e.g. DMART, RELIANCE, TCS...)")
+            submitted = st.form_submit_button("🚀 Generate Trade Plan", use_container_width=True)
+            
+        if submitted:
+            if raw_paste.strip():
+                import re
+                words = re.split(r'[\s,]+', raw_paste.strip())
+                symbols = []
+                for w in words:
+                    cw = w.strip()
+                    if len(cw) > 1 and re.match(r'^[A-Z\-]+$', cw):
+                        if cw not in symbols: symbols.append(cw)
+                        
+                if symbols:
+                    st.success(f"Detected {len(symbols)} symbols: {', '.join(symbols)}")
+                    ns_symbols = [f"{s}.NS" for s in symbols]
+                    
+                    with st.spinner(f"Calculating {plan_tf} trade execution levels..."):
+                        # Always strictly fetch fresh data matching the requested timeframe guarantees accurate Intraday Pivots
+                        plan_data = fetch_all_stocks(ns_symbols, tf=plan_tf)
+                             
+                        plan_rows = []
+                        for sym in ns_symbols:
+                            if sym not in plan_data or "error" in plan_data[sym]: continue
+                            d = plan_data[sym]
+                            t = d["Technicals"]
+                            p = d.get("Pivots", {})
+                            if not p: continue
+                            
+                            plan_rows.append({
+                                "Symbol": sym.replace(".NS", ""),
+                                "Price": f"₹{t.get('Last Price', 0)}",
+                                "Trend Bias": d["Signal"]["action"],
+                                "Pivot (Entry)": f"₹{p.get('Pivot', 0)}",
+                                "Target 1 (R1)": f"₹{p.get('R1', 0)}",
+                                "Target 2 (R2)": f"₹{p.get('R2', 0)}",
+                                "Support 1 (SL/Buy)": f"₹{p.get('S1', 0)}",
+                                "Support 2 (Max SL)": f"₹{p.get('S2', 0)}"
+                            })
+                            
+                        if plan_rows:
+                            st.session_state["chartink_df"] = pd.DataFrame(plan_rows)
+                        else:
+                            st.warning("Could not calculate pivot levels for the extracted symbols.")
+                else:
+                    st.error("No valid uppercase ticker symbols detected in the pasted text.")
+                    
+        if "chartink_df" in st.session_state:
+            st.dataframe(st.session_state["chartink_df"], use_container_width=True)
+            if st.button("🧹 Clear Results"):
+                del st.session_state["chartink_df"]
+                st.rerun()
+        
+        st.markdown("<hr style='margin-top:20px; margin-bottom:20px'>", unsafe_allow_html=True)
+        st.markdown("### 📈 External Screeners Links")
+
         with st.expander("📖 How do these Screeners work?", expanded=False):
             st.markdown("""
             ### 1. Capital Growth Screener
             This screener is split into two distinct conditions—one for finding **Bullish** momentum and one for **Bearish** breakdowns.
-            - **🟢 Bullish Setup (Top Half):** Filters for stocks where the current 15-minute candle breaks **above the high** of the previous 15-minute green candle. It ensures the previous candle wasn't unusually massive (body < 2.5% of open price) but was large enough to be significant (body > 0.5% of Daily open).
+            - **🟢 Bullish Setup (Top Half):** Filters for stocks where the current 15-minute candle breaks **above the high** of the previous 15-minute green candle. It ensures the previous candle was not unusually massive (body < 2.5% of open price) but was large enough to be significant (body > 0.5% of Daily open).
             - **🔴 Bearish Setup (Bottom Half):** Filters for the exact opposite. It looks for stocks where the latest 15-minute candle is breaking **below the low** of a solid, moderately-sized red candle.
 
             ### 2. Inside Bar & Narrow CPR
@@ -776,14 +835,13 @@ if "results" in st.session_state:
             - **Extra Filters:** It restricts the scan to stocks priced between ₹100 and ₹1000, and ensures the previous 15-minute candle wasn't overly stretched (range was < 3% of the close price).
             """)
 
-        st.markdown("<br>", unsafe_allow_html=True)
         col1, col2 = st.columns(2)
         
         with col1:
             st.markdown(
                 """<div class="glass-card" style="text-align:center; padding:35px 20px;">
                     <h3 style="color:#5eead4; margin-bottom:8px;">Capital Growth Screener</h3>
-                    <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:24px;">Ravi Capital Growth Setup</p>
+                    <p style="color:#94a3b8; font-size:0.95rem; margin-bottom:24px;">Momentum Setup</p>
                     <a href="https://chartink.com/screener/copy-ravi-capital-growth" target="_blank" 
                        style="display:inline-block; padding:12px 30px; background:linear-gradient(135deg, #0f766e 0%, #064e3b 100%); 
                               color:white; border-radius:8px; text-decoration:none; font-weight:bold; 
