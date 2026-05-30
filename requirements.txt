@@ -5,4 +5,4 @@ plotly
 requests
 requests-toolbelt
 yfinance
-pandas-ta
+pandas_ta
